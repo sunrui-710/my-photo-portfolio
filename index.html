@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>孫睿 | 写真</title>
+  <style>
+    :root {
+      --bg: #fff;
+      --text: #111;
+      --muted: #767676;
+      --line: #e9e9e9;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .page {
+      padding: 28px clamp(14px, 3vw, 42px) 42px;
+    }
+
+    .profile {
+      display: grid;
+      grid-template-columns: minmax(180px, 280px) minmax(240px, 520px) auto;
+      gap: 28px;
+      align-items: start;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .name {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .profile p {
+      margin: 0;
+      color: #333;
+    }
+
+    .count {
+      justify-self: end;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .grid {
+      column-count: 4;
+      column-gap: 18px;
+    }
+
+    .photo {
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 22px;
+      break-inside: avoid;
+    }
+
+    .photo button {
+      display: block;
+      width: 100%;
+      background: #f5f5f5;
+    }
+
+    .photo img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    figcaption {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 30px;
+      background: rgba(255, 255, 255, .96);
+    }
+
+    .lightbox.is-open { display: grid; }
+
+    .lightbox img {
+      max-width: 100%;
+      max-height: 88vh;
+      object-fit: contain;
+    }
+
+    .close {
+      position: fixed;
+      top: 14px;
+      right: 18px;
+      width: 42px;
+      height: 42px;
+      color: #333;
+      font-size: 28px;
+      line-height: 42px;
+      text-align: center;
+    }
+
+    @media (max-width: 1100px) {
+      .grid { column-count: 3; }
+    }
+
+    @media (max-width: 760px) {
+      .page { padding: 18px 12px 32px; }
+      .profile {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding-bottom: 18px;
+      }
+      .count { justify-self: start; }
+      .grid {
+        column-count: 2;
+        column-gap: 12px;
+      }
+      .photo { margin-bottom: 16px; }
+      figcaption { font-size: 10px; }
+    }
+
+    @media (max-width: 420px) {
+      .grid { column-count: 1; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="profile" aria-label="プロフィール">
+      <div class="name">孫睿<br>ソンレイ</div>
+      <p>京都で生活しながら、街の光、静かな時間、偶然の距離を撮影しています。</p>
+      <div class="count">写真 92 点</div>
+    </section>
+
+    <section class="grid" id="grid" aria-label="写真一覧"></section>
+  </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="写真ビューア">
+    <button class="close" id="close" aria-label="閉じる">×</button>
+    <img id="lightboxImage" src="" alt="">
+  </div>
+
+  <script>
+    const photos = [
+      ["001", "DSCF0085", "assets/001-DSCF0085.jpg"],
+      ["002", "DSCF0392", "assets/002-DSCF0392.jpg"],
+      ["003", "DSCF0437", "assets/003-DSCF0437.jpg"],
+      ["004", "DSCF0479", "assets/004-DSCF0479.jpg"],
+      ["005", "DSCF0482", "assets/005-DSCF0482.jpg"],
+      ["006", "DSCF0483", "assets/006-DSCF0483.jpg"],
+      ["007", "DSCF0524", "assets/007-DSCF0524.jpg"],
+      ["008", "DSCF0564", "assets/008-DSCF0564.jpg"],
+      ["009", "DSCF0583", "assets/009-DSCF0583.jpg"],
+      ["010", "DSCF0756", "assets/010-DSCF0756.jpg"],
+      ["011", "DSCF0800", "assets/011-DSCF0800.jpg"],
+      ["012", "DSCF0857", "assets/012-DSCF0857.jpg"],
+      ["013", "DSCF0870", "assets/013-DSCF0870.jpg"],
+      ["014", "DSCF0997", "assets/014-DSCF0997.jpg"],
+      ["015", "DSCF1036", "assets/015-DSCF1036.jpg"],
+      ["016", "DSCF1049", "assets/016-DSCF1049.jpg"],
+      ["017", "DSCF1056", "assets/017-DSCF1056.jpg"],
+      ["018", "DSCF1322", "assets/018-DSCF1322.jpg"],
+      ["019", "DSCF1438", "assets/019-DSCF1438.jpg"],
+      ["020", "DSCF1537", "assets/020-DSCF1537.jpg"],
+      ["021", "DSCF1565", "assets/021-DSCF1565.jpg"],
+      ["022", "DSCF1644", "assets/022-DSCF1644.jpg"],
+      ["023", "DSCF1684", "assets/023-DSCF1684.jpg"],
+      ["024", "DSCF1748", "assets/024-DSCF1748.jpg"],
+      ["025", "DSCF1797", "assets/025-DSCF1797.jpg"],
+      ["026", "DSCF1811", "assets/026-DSCF1811.jpg"],
+      ["027", "DSCF1870", "assets/027-DSCF1870.jpg"],
+      ["028", "DSCF1874", "assets/028-DSCF1874.jpg"],
+      ["029", "DSCF1928", "assets/029-DSCF1928.jpg"],
+      ["030", "DSCF1950", "assets/030-DSCF1950.jpg"],
+      ["031", "DSCF1986", "assets/031-DSCF1986.jpg"],
+      ["032", "DSCF2046", "assets/032-DSCF2046.jpg"],
+      ["033", "DSCF2059", "assets/033-DSCF2059.jpg"],
+      ["034", "DSCF2083", "assets/034-DSCF2083.jpg"],
+      ["035", "DSCF2097", "assets/035-DSCF2097.jpg"],
+      ["036", "DSCF2149", "assets/036-DSCF2149.jpg"],
+      ["037", "DSCF2212", "assets/037-DSCF2212.jpg"],
+      ["038", "DSCF2585", "assets/038-DSCF2585.jpg"],
+      ["039", "DSCF2586", "assets/039-DSCF2586.jpg"],
+      ["040", "DSCF2686", "assets/040-DSCF2686.jpg"],
+      ["041", "DSCF2688", "assets/041-DSCF2688.jpg"],
+      ["042", "DSCF2726", "assets/042-DSCF2726.jpg"],
+      ["043", "DSCF2768", "assets/043-DSCF2768.jpg"],
+      ["044", "DSCF2786", "assets/044-DSCF2786.jpg"],
+      ["045", "DSCF2794", "assets/045-DSCF2794.jpg"],
+      ["046", "DSCF2795", "assets/046-DSCF2795.jpg"],
+      ["047", "DSCF2806", "assets/047-DSCF2806.jpg"],
+      ["048", "DSCF2808", "assets/048-DSCF2808.jpg"],
+      ["049", "DSCF2832", "assets/049-DSCF2832.jpg"],
+      ["050", "DSCF2840", "assets/050-DSCF2840.jpg"],
+      ["051", "DSCF2848", "assets/051-DSCF2848.jpg"],
+      ["052", "DSCF2897", "assets/052-DSCF2897.jpg"],
+      ["053", "DSCF2914", "assets/053-DSCF2914.jpg"],
+      ["054", "DSCF2963", "assets/054-DSCF2963.jpg"],
+      ["055", "DSCF3006", "assets/055-DSCF3006.jpg"],
+      ["056", "DSCF3019", "assets/056-DSCF3019.jpg"],
+      ["057", "DSCF3201", "assets/057-DSCF3201.jpg"],
+      ["058", "DSCF3392", "assets/058-DSCF3392.jpg"],
+      ["059", "DSCF3554", "assets/059-DSCF3554.jpg"],
+      ["060", "DSCF3632", "assets/060-DSCF3632.jpg"],
+      ["061", "DSCF3699", "assets/061-DSCF3699.jpg"],
+      ["062", "DSCF3753", "assets/062-DSCF3753.jpg"],
+      ["063", "DSCF3816", "assets/063-DSCF3816.jpg"],
+      ["064", "DSCF3941", "assets/064-DSCF3941.jpg"],
+      ["065", "DSCF4274", "assets/065-DSCF4274.jpg"],
+      ["066", "DSCF4285", "assets/066-DSCF4285.jpg"],
+      ["067", "DSCF4330", "assets/067-DSCF4330.jpg"],
+      ["068", "DSCF4355", "assets/068-DSCF4355.jpg"],
+      ["069", "DSCF4371", "assets/069-DSCF4371.jpg"],
+      ["070", "DSCF4404", "assets/070-DSCF4404.jpg"],
+      ["071", "DSCF4420", "assets/071-DSCF4420.jpg"],
+      ["072", "DSCF4423", "assets/072-DSCF4423.jpg"],
+      ["073", "DSCF4431", "assets/073-DSCF4431.jpg"],
+      ["074", "DSCF4449", "assets/074-DSCF4449.jpg"],
+      ["075", "DSCF4458", "assets/075-DSCF4458.jpg"],
+      ["076", "DSCF4461", "assets/076-DSCF4461.jpg"],
+      ["077", "DSCF4470", "assets/077-DSCF4470.jpg"],
+      ["078", "DSCF5668", "assets/078-DSCF5668.jpg"],
+      ["079", "DSCF5710", "assets/079-DSCF5710.jpg"],
+      ["080", "DSCF5804", "assets/080-DSCF5804.jpg"],
+      ["081", "DSCF6090", "assets/081-DSCF6090.jpg"],
+      ["082", "DSCF6119", "assets/082-DSCF6119.jpg"],
+      ["083", "DSCF6120", "assets/083-DSCF6120.jpg"],
+      ["084", "DSCF6123", "assets/084-DSCF6123.jpg"],
+      ["085", "DSCF6134", "assets/085-DSCF6134.jpg"],
+      ["086", "L1000069", "assets/086-L1000069.jpg"],
+      ["087", "L1000141", "assets/087-L1000141.jpg"],
+      ["088", "L1000149", "assets/088-L1000149.jpg"],
+      ["089", "L1000198", "assets/089-L1000198.jpg"],
+      ["090", "L1000449", "assets/090-L1000449.jpg"],
+      ["091", "L1010837", "assets/091-L1010837.jpg"],
+      ["092", "L1010850", "assets/092-L1010850.jpg"],
+    ];
+
+    const grid = document.getElementById('grid');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightboxImage');
+
+    grid.innerHTML = photos.map(([number, name, src]) => `
+      <figure class="photo">
+        <button class="open" data-src="${src}" aria-label="${number} ${name} を開く">
+          <img src="${src}" alt="${name}" loading="lazy">
+        </button>
+        <figcaption><span>${number}</span><span>${name}</span></figcaption>
+      </figure>
+    `).join('');
+
+    grid.addEventListener('click', (event) => {
+      const button = event.target.closest('.open');
+      if (!button) return;
+      lightboxImage.src = button.dataset.src;
+      lightboxImage.alt = button.querySelector('img').alt;
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+    });
+
+    function closeLightbox() {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightboxImage.src = '';
+    }
+
+    document.getElementById('close').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeLightbox();
+    });
+  </script>
+</body>
+</html>
